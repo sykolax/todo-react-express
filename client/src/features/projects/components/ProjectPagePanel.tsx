@@ -1,23 +1,5 @@
 import Panel from "./Panel";
 
-// type PanelProps = {
-//     type: PanelType;
-//     items: ItemProps[];
-//     title: string;   
-//     inputPlaceholder: string;
-// }
-
-// type ItemProps = {
-//     id: number;
-//     label: string;
-//     checked?: boolean;
-// }
-
-// type ItemListProps = {
-//     items: ItemProps[];
-//     Row: React.ComponentType<{ itemProps: ItemProps }>;
-// }
-
 export default function ProjectPagePanel(){
     return (
         <div className="flex px-10 gap-10 mt-20">
