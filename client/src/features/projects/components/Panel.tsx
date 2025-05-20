@@ -54,7 +54,7 @@ function ProjectRow ({ itemProps }: { itemProps: ItemProps }) {
 function TaskRow ({ itemProps }: { itemProps: ItemProps }) {
     return (
         <div className="bg-stone-100 px-5 py-3 w-full text-black flex justify-between">
-            <div>
+            <div className="flex gap-3">
                 <IconButton icon={uncheckedIcon} />
                 { itemProps.label }
             </div>
