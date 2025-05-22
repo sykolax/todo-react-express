@@ -42,7 +42,7 @@ export const changePassword = async (req: Request, res: Response) => {
         });
     } catch(e) {
         console.log(e);
-        res.status(500).send({ message: "Something went wrong while changing the password." });
+        res.status(500).json({ message: "Something went wrong while changing the password." });
     }
 }
 
@@ -156,14 +156,14 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
 export const loginUser = async (req: Request, res: Response) => {
     try {
         if (!req.userId) {
-            res.status(401).send({ message: "Missing user id" });
+            res.status(401).json({ message: "Missing user id" });
             return;
         }
         if (!req.token) {
-            res.status(401).send({ message: "Missing token" });
+            res.status(401).json({ message: "Missing token" });
             return;
         } 
-        res.status(200).send({ token: req.token, user: req.userId });
+        res.status(200).json({ token: req.token, user: req.userId });
     } catch(e) {
         console.log(e);
         res.status(401).json({ message: (e as Error).message || "Unauthorized" });
