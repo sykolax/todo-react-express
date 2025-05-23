@@ -9,6 +9,8 @@ const router = Router();
 router.post('/auth/register', userController.createUser, userController.generateJWT, userController.loginUser);
 router.post('/auth/login', userController.findUserByCredentials, userController.generateJWT, userController.loginUser);
 router.patch('/auth/change-password', userController.requireAuthentication, userController.changePassword);
+router.get('/auth/status', userController.requireAuthentication, userController.verifyStatus);
+router.get('/auth/logout', userController.logoutUser);
 
 // route setting for projects
 router.post('/projects', userController.requireAuthentication, projectController.createProject);
