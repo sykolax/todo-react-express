@@ -6,6 +6,7 @@ import emailIcon from '@assets/email_icon.svg';
 import passwordIcon from '@assets/password_icon.svg';
 import api from '@/lib/axios';
 import { useNavigate } from 'react-router';
+import { useAuth } from '@/context/AuthContext';
 
 export default function LoginForm () {
      const [formData, setFormData] = useState({
@@ -18,24 +19,31 @@ export default function LoginForm () {
      });
      const [submitErrorMessage, setSubmitErrorMessage] = useState('');
      const navigate = useNavigate();
+     const authContext = useAuth();
 
      async function loginUser(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         
         if (validateForm()) {
             // no errors on the form, submit
-            api.post('/auth/login', {
-                email: formData.email,
-                password: formData.password,
-            }).then((result) => {
-                console.log(result);
+            try {
+                const response = await api.post('/auth/login', {
+                    email: formData.email,
+                    password: formData.password,
+                });
+                const data = response.data;
+                authContext.setIsLoggedIn(true);
+                authContext.setUsername(data.username);
                 navigate("/projects");
-            }).catch((error) => {
-                console.log(error);
-                setSubmitErrorMessage(error.response.data.message);
-            });
-        } 
-     }
+                console.log(data);
+            } catch (error) {
+                if (error instanceof Error) {
+                    console.error(error);
+                    setSubmitErrorMessage(error.message);
+                }
+            }
+        }
+    }
 
      function validateForm() {
         const newErrors = {

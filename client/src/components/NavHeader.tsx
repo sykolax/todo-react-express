@@ -1,3 +1,4 @@
+import { useAuth } from '@/context/AuthContext';
 import { Link } from 'react-router-dom';
 
 type NavLink = {
@@ -5,12 +6,12 @@ type NavLink = {
     label: string;
     path: string;
     classNames: string;
-}
+};
 
 const buttonClassNames = {
     filled: 'text-white bg-black',
     empty: 'text-black bg-white',
-} 
+};
 
 interface NavLinkProps {
     navLinks: NavLink[];
@@ -38,15 +39,17 @@ export function NavItems({ navLinks }: NavLinkProps) {
     );
 }
 
-export default function NavHeader({ isLoggedIn }: {isLoggedIn: boolean}) {
+export default function NavHeader() {
+    const authContext = useAuth();
+
     return (
         <nav className="sticky top-0 py-4 px-10 flex justify-between items-center w-full">
             <div className="logo-wrapper"> 
                 <Link className="logo" to="/">TODOO</Link>
             </div>
             <div className="nav-item-wrapper flex flex-wrap items-center gap-7">
-                <h2>{isLoggedIn && 'HELLO SYKO!'}</h2>
-                <NavItems navLinks={isLoggedIn? loggedInNavLinks : loggedOutNavLinks} />
+                <h2>{authContext.isLoggedIn && `HELLO ${authContext.username.toUpperCase()}!`}</h2>
+                <NavItems navLinks={authContext.isLoggedIn? loggedInNavLinks : loggedOutNavLinks} />
             </div>
         </nav>
     );
