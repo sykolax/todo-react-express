@@ -49,16 +49,20 @@ export const changePassword = async (req: Request, res: Response) => {
 export const requireAuthentication = async (req: Request, res: Response, next: NextFunction) => {
     // JWT Toekn verification, verify if it hasn't been altered
     const secret = process.env.JWT_SECRET as string;
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.split(" ")[1]; // split "Bearer [token_value]"
+    // const authHeader = req.headers.authorization;
+    // const token = authHeader?.split(" ")[1]; // split "Bearer [token_value]"
+    if (!req.cookies.token) {
+        res.status(401).json({ message: "No token in cookies" });
+    }
+    const token = req.cookies.token.token;
 
     if (!secret) {
         throw new Error("No secret has been defined in the environment");
     }
 
-    if (!token) {
-        throw new Error("No token found in the header");
-    }
+    // if (!token) {
+    //     throw new Error("No token found");
+    // }
 
     try {
         // this decodes the payload only if the signature is valid
@@ -96,6 +100,7 @@ export const findUserByCredentials = async (req: Request, res: Response, next: N
         }
 
         req.userId = user.id;
+        req.username = user.name;
         next();
 
     } catch (e) {
@@ -145,6 +150,7 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
             },
         });
         req.userId = user.id;
+        req.username = user.name;
         next();
 
     } catch(e) {
@@ -159,12 +165,46 @@ export const loginUser = async (req: Request, res: Response) => {
             res.status(401).json({ message: "Missing user id" });
             return;
         }
+
         if (!req.token) {
             res.status(401).json({ message: "Missing token" });
             return;
         } 
-        res.status(200).json({ token: req.token, user: req.userId });
+        res.cookie('token', req.token, {httpOnly: true});
+        res.status(200).json({ token: req.token, user: req.userId, username: req.username});
+
     } catch(e) {
+        console.log(e);
+        res.status(401).json({ message: (e as Error).message || "Unauthorized" });
+    }
+}
+
+export const logoutUser = async (req: Request, res: Response) => {
+    try {
+        res.clearCookie('token');
+        res.status(200).end();
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({ message: (e as Error).message || "Something went wrong while logging out"});
+    }
+}
+
+export const verifyStatus = async (req: Request, res: Response) => {
+    if (!req.userId) {
+        res.status(401).json({ message: "Not verified" });
+    }
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: req.userId,
+            }
+        });
+        if (!user) {
+            res.status(401).json({ message: "Couldn't find the user" });
+            return;
+        }
+        res.status(200).json({ userId: req.userId, username: user.name });
+    } catch (e) {
         console.log(e);
         res.status(401).json({ message: (e as Error).message || "Unauthorized" });
     }
