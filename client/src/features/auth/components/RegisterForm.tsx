@@ -9,9 +9,14 @@ import { useNavigate } from "react-router-dom";
 import FormErrorMessage from './FormErrorMessage';
 import api from '@/lib/axios';
 
-function PasswordWarning({ message }: { message: string}) {
+type PasswordWarningProps = {
+    metCriteria: boolean,
+    message: string,
+};
+
+function PasswordWarning({ metCriteria, message }: PasswordWarningProps) {
     return (
-        <p>✓ {message}</p>
+        <p className={`${metCriteria ? 'text-lime-500' : 'text-red-500'}`}>✓ { message }</p>
     );
 }
 
@@ -28,6 +33,16 @@ export default function RegisterForm() {
         email: '',
         password: '',
      });
+    const [isPasswordStrong, setIsPasswordStrong] = useState({
+        long: false,
+        number: false,
+        upperLower: false,
+    });
+    const [hasBeenChecked, setHasBeenChecked] = useState(false);
+    const numberRegex = /\d/;
+    const upperRegex = /[A-Z]/;
+    const lowerRegex = /[a-z]/;
+
     const [submitError, setSubmitError] = useState(false);
     const submitErrorMessage = 'Something went wrong. Try again.';
 
@@ -77,6 +92,30 @@ export default function RegisterForm() {
         return !newErrors.username && !newErrors.email && !newErrors.password;
      }
 
+    function checkPassword(password: string) {
+        // onchange on the password 
+        setFormData((prev) => ({...prev, password: password}));
+        setHasBeenChecked(true);
+        // 1. At least 8 characters long
+        if (password.length >= 8) {
+            setIsPasswordStrong((prev) => ({...prev, long: true}));
+        } else {
+            setIsPasswordStrong((prev) => ({...prev, long: false}));
+        }
+        // 2. Includes a number
+        if (numberRegex.test(password)) {
+            setIsPasswordStrong((prev) => ({...prev, number: true}));
+        } else {
+            setIsPasswordStrong((prev) => ({...prev, number: false}));
+        }
+        // 3. Includes uppercase and lowercase 
+        if (lowerRegex.test(password) && upperRegex.test(password)) {
+            setIsPasswordStrong((prev) => ({...prev, upperLower: true}));
+        } else {
+            setIsPasswordStrong((prev) => ({...prev, upperLower: false}));
+        }
+    }
+
     return (
         <form onSubmit={registerUser} className="flex flex-col w-xs mx-auto mt-60">
             <h2 className="text-3xl mt-0 mb-5">Create your account</h2>
@@ -87,12 +126,12 @@ export default function RegisterForm() {
                 { formError.email && <FormErrorMessage message={formError.email}/>}
                 <FormInput inputType="email" placeholder="Email" icon={emailIcon} value={formData.email} onChange={(e) => setFormData((prev) => ({...prev, email: e.target.value}))}/>
                 { formError.password && <FormErrorMessage message={formError.password}/>}
-                <FormInput inputType="password" placeholder="Password" icon={passwordIcon} value={formData.password} onChange={(e) => setFormData((prev) => ({...prev, password: e.target.value}))}/>
+                <FormInput inputType="password" placeholder="Password" icon={passwordIcon} value={formData.password} onChange={(e) => checkPassword(e.target.value)}/>
             </div>
-            <div className="mt-3 text-left text-xs">
-                <p>✓ At least 8 characters long</p>
-                <p>✓ Includes a number</p>
-                <p>✓ Includes uppercase and lowercase letters</p>
+            <div className={`mt-3 text-left text-xs ${hasBeenChecked ? 'block': 'hidden'}`}>
+                <PasswordWarning message="At least 8 characters long" metCriteria={isPasswordStrong.long}/>
+                <PasswordWarning message="Includes a number" metCriteria={isPasswordStrong.number}/>
+                <PasswordWarning message="Includes uppercase and lowercase letters" metCriteria={isPasswordStrong.upperLower}/>
             </div>
             <SubmitButton text="SUBMIT" />
         </form>
