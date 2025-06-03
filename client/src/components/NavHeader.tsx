@@ -4,8 +4,9 @@ import { Link } from 'react-router-dom';
 type NavLink = {
     id: number;
     label: string;
-    path: string;
+    path?: string;
     classNames: string;
+    onClick?: () => void;
 };
 
 const buttonClassNames = {
@@ -17,20 +18,19 @@ interface NavLinkProps {
     navLinks: NavLink[];
 }
 
-const loggedOutNavLinks: NavLink[] = [
-    { id: 0, label: 'register', path: '/register', classNames: buttonClassNames.empty },
-    { id: 1, label: 'log in', path: '/login' , classNames: buttonClassNames.filled }
-];
-
-const loggedInNavLinks: NavLink[] = [
-    { id: 0, label: 'projects', path: '/projects', classNames: buttonClassNames.empty }, 
-    { id: 1, label: 'log out', path: '/logout', classNames: buttonClassNames.filled }
-];
-
 export function NavItem({ navLink }: { navLink: NavLink }) {
-    return (
-        <Link className={"px-7 py-2 border-1 border-solid border-black rounded-4xl uppercase " + navLink.classNames} to={navLink.path}>{navLink.label}</Link>
+    const classes = "px-7 py-2 border-1 border-solid border-black rounded-4xl uppercase " + navLink.classNames
+
+    if (navLink.path) {
+        return (
+        <Link className={classes} to={navLink.path}>{navLink.label}</Link>
     );
+    }
+
+    return (
+        <button className={classes} onClick={navLink.onClick}>{navLink.label}</button>
+    );
+
 }
 
 export function NavItems({ navLinks }: NavLinkProps) {
@@ -41,6 +41,16 @@ export function NavItems({ navLinks }: NavLinkProps) {
 
 export default function NavHeader() {
     const authContext = useAuth();
+
+    const loggedOutNavLinks: NavLink[] = [
+    { id: 0, label: 'register', path: '/register', classNames: buttonClassNames.empty },
+    { id: 1, label: 'log in', path: '/login' , classNames: buttonClassNames.filled }
+    ];
+
+    const loggedInNavLinks: NavLink[] = [
+    { id: 0, label: 'projects', path: '/projects', classNames: buttonClassNames.empty }, 
+    { id: 1, label: 'log out', classNames: buttonClassNames.filled, onClick: authContext.logout}
+    ];
 
     return (
         <nav className="sticky top-0 py-4 px-10 flex justify-between items-center w-full">
