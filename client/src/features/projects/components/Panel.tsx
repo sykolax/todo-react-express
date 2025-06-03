@@ -178,12 +178,12 @@ function TaskRow ({ taskProps }: { taskProps: TaskRowProps }) {
     }
 
     return (
-        <div className="bg-stone-100 px-5 py-3 w-full text-black flex justify-between mb-3">
+        <div className={`px-5 py-3 w-full text-black flex justify-between mb-3 ${taskProps.completed ? 'bg-lime-100': 'bg-stone-100' }`}>
             <div className="flex gap-3">
                 { taskProps.completed ? <IconButton icon={checkedIcon} onClick={handleUncheck} /> : <IconButton icon={uncheckedIcon} onClick={handleCheck} /> }
                 { isEditMode ? 
                 <EditableRecord value={taskProps.description} name={`task-${taskProps.id}`} submitHandler={handleRecordSubmit} formRef={formRef} /> : 
-                taskProps.description }
+                <p className={taskProps.completed ? 'line-through': ''}>{ taskProps.description }</p> }
             </div>
             <RowButtonSet checkOnClick={handleConfirmClick} deleteOnClick={handleDeleteClick} isEditMode={isEditMode} setEditMode={setIsEditMode}/>
         </div>
