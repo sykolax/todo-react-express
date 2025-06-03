@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import FormInput from './FormInput';
 import SubmitButton from './SubmitButton';
 import FormErrorMessage from './FormErrorMessage';
@@ -21,27 +21,36 @@ export default function LoginForm () {
      const navigate = useNavigate();
      const authContext = useAuth();
 
+     useEffect(() => {
+        if (authContext.isLoggedIn && !authContext.isLoading) {
+            navigate('/projects');
+        }
+     }, [authContext.isLoading, authContext.isLoggedIn]);
+
      async function loginUser(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
+        authContext.setIsLoading(true);
         
-        if (validateForm()) {
-            // no errors on the form, submit
-            try {
-                const response = await api.post('/auth/login', {
-                    email: formData.email,
-                    password: formData.password,
-                });
-                const data = response.data;
-                authContext.setIsLoggedIn(true);
-                authContext.setUsername(data.username);
-                navigate("/projects");
-                console.log(data);
-            } catch (error) {
-                if (error instanceof Error) {
-                    console.error(error);
-                    setSubmitErrorMessage(error.message);
-                }
+        if (!validateForm()) {
+            authContext.setIsLoading(false);
+            return;
+        }
+        try {
+            const response = await api.post('/auth/login', {
+                email: formData.email,
+                password: formData.password,
+            });
+            const data = response.data;
+            authContext.setIsLoggedIn(true);
+            authContext.setUsername(data.username);
+            navigate("/projects");
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error(error);
+                setSubmitErrorMessage(error.message);
             }
+        } finally {
+            authContext.setIsLoading(false);
         }
     }
 
