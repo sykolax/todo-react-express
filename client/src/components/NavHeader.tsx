@@ -18,13 +18,14 @@ interface NavLinkProps {
     navLinks: NavLink[];
 }
 
+//md -> min-width
 export function NavItem({ navLink }: { navLink: NavLink }) {
-    const classes = "px-7 py-2 border-1 border-solid border-black rounded-4xl uppercase " + navLink.classNames
+    const classes = "px-2 py-2 md:px-7 md:py-2 border-1 border-solid border-black rounded-4xl uppercase " + navLink.classNames
 
     if (navLink.path) {
         return (
         <Link className={classes} to={navLink.path}>{navLink.label}</Link>
-    );
+        );
     }
 
     return (
@@ -53,11 +54,11 @@ export default function NavHeader() {
     ];
 
     return (
-        <nav className="sticky top-0 py-4 px-10 flex justify-between items-center w-full">
+        <nav className="sticky top-0 py-2 px-3 md:py-4 md:px-10 flex justify-between items-center w-full navbar">
             <div className="logo-wrapper"> 
-                <Link className="logo" to="/">TODOO</Link>
+                <Link className="logo" to="/projects">TODOO</Link>
             </div>
-            <div className="nav-item-wrapper flex flex-wrap items-center gap-7">
+            <div className="nav-item-wrapper flex items-center gap-2 sm:gap-7">
                 <h2>{authContext.isLoggedIn && `HELLO ${authContext.username.toUpperCase()}!`}</h2>
                 <NavItems navLinks={authContext.isLoggedIn? loggedInNavLinks : loggedOutNavLinks} />
             </div>
