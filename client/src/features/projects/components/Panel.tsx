@@ -40,6 +40,7 @@ type EditableRecordProps = {
 type ItemListProps = {
     items: ProjectRowProps[] | TaskRowProps[];
     type: PanelType;
+    currentProjectId?: number;
 }
 
 type ItemInputProps = {
@@ -70,6 +71,7 @@ export type PanelProps = {
     submitHandler: (val:string) => void;
     projectClickHandler?: (pid: number) => void;
     className?: string;
+    currentProjectId?: number;
 }
 
 function IconButton({ icon, onClick, type}: IconButtonProps ) {
@@ -121,12 +123,13 @@ function EditableRecord({ value, name, submitHandler, formRef }: EditableRecordP
     );
 }
 
-function ProjectRow ({ projectProps }: { projectProps: ProjectRowProps }) {
+function ProjectRow ({ projectProps, currentProjectId }: { projectProps: ProjectRowProps; currentProjectId: number }) {
     const [isEditMode, setIsEditMode] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
 
     function handleClick() {
         projectProps.setCurrentProjectId(projectProps.id);
+        // console.log(projectProps.id, projectProps.currentProjectId);
     }
 
     function handleConfirmClick() {
@@ -144,7 +147,7 @@ function ProjectRow ({ projectProps }: { projectProps: ProjectRowProps }) {
     }
 
     return (
-        <div className="bg-stone-100 px-5 py-3 w-full text-black flex justify-between cursor-pointer mb-3" onClick={handleClick}>
+        <div className={`${projectProps.id === currentProjectId ? 'bg-lime-100':'bg-stone-100'} px-5 py-3 w-full text-black flex justify-between cursor-pointer mb-3`} onClick={handleClick}>
             { isEditMode ? 
             <EditableRecord value={projectProps.title} name={`project-${projectProps.id}`} submitHandler={handleRecordSubmit} formRef={formRef} /> : 
             projectProps.title }
@@ -178,7 +181,7 @@ function TaskRow ({ taskProps }: { taskProps: TaskRowProps }) {
     }
 
     return (
-        <div className={`px-5 py-3 w-full text-black flex justify-between mb-3 ${taskProps.completed ? 'bg-lime-100': 'bg-stone-100' }`}>
+        <div className={`task px-5 py-3 w-full text-black flex justify-between mb-3 ${taskProps.completed ? 'task-completed': '' }`}>
             <div className="flex gap-3">
                 { taskProps.completed ? <IconButton icon={checkedIcon} onClick={handleUncheck} /> : <IconButton icon={uncheckedIcon} onClick={handleCheck} /> }
                 { isEditMode ? 
@@ -190,12 +193,12 @@ function TaskRow ({ taskProps }: { taskProps: TaskRowProps }) {
     );
 }
 
-function ItemList({ items, type }: ItemListProps ) {
+function ItemList({ items, type, currentProjectId } : ItemListProps ) {
     return (
         <div className="flex flex-col">
             { type === "project" &&
             (items as ProjectRowProps[]).map(item => (
-                <ProjectRow key={item.id} projectProps={item} />
+                <ProjectRow key={item.id} projectProps={item} currentProjectId={currentProjectId!}  />
             ))}
             { type === "task" &&
             (items as TaskRowProps[]).map(item => (
@@ -222,12 +225,12 @@ function ItemInput({ placeholder, onSubmit }: ItemInputProps) {
     );
 }
 
-export default function Panel({ type, items, title, inputPlaceholder, submitHandler, className }: PanelProps) {
+export default function Panel({ type, items, title, inputPlaceholder, submitHandler, className, currentProjectId }: PanelProps) {
     return (
         <>
             <div className={"text-left " + className}>
                 <h2 className="text-xl mb-3">{title}</h2>
-                <ItemList items={items} type={type}/>
+                <ItemList items={items} type={type} currentProjectId={currentProjectId}/>
                 <ItemInput placeholder={inputPlaceholder} onSubmit={submitHandler}/>
             </div>
         </>

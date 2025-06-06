@@ -1,5 +1,5 @@
 import { useAuth } from "@/context/AuthContext";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import api from '@/lib/axios';
 import Panel from "./Panel";
 import type { ProjectRowProps, TaskRowProps } from "./Panel";
@@ -21,10 +21,16 @@ export type TaskResponse = {
 export default function ProjectPagePanel(){
 
     const [projects, setProjects] = useState<ProjectRowProps[]>([]);
-    const [currentProjectId, setCurrentProjectId] = useState<number>();
+    const [currentProjectId, setCurrentProjectId] = useState<number>(-1);
     const [tasks, setTasks] = useState<TaskRowProps[]>([]);
     const authContext = useAuth();
     const navigate = useNavigate();
+    const currentProjectIdRef = useRef(currentProjectId);
+
+    useEffect(() => {
+    currentProjectIdRef.current = currentProjectId;
+    }, [currentProjectId]);
+
 
     useEffect(() => {
         if (!authContext.isLoggedIn && !authContext.isLoading) {
@@ -39,7 +45,7 @@ export default function ProjectPagePanel(){
                 const data = response.data;
                 if (data.projects.length > 0) {
                     setProjects(data.projects.map((project: ProjectResponse) => { return {
-                    id: project.id, title: project.title, setCurrentProjectId: setCurrentProjectId, 
+                    id: project.id, title: project.title, currentProjectId: currentProjectId, setCurrentProjectId: setCurrentProjectId, 
                     editHandler: updateProject, deleteHandler: deleteProject };}
                     ));
                 }
@@ -51,9 +57,14 @@ export default function ProjectPagePanel(){
     }, [authContext.isLoggedIn && !authContext.isLoading]);
 
     useEffect(() => {
-        if (currentProjectId !== undefined) {
-            fetchTasks(currentProjectId);
+        console.log(currentProjectId);
+        if (currentProjectId === -1) {
+            console.log("setting it -1");
+            setTasks([]);
+            return;
         }
+        fetchTasks(currentProjectId);
+        
     }, [currentProjectId]);
 
     async function fetchTasks(pid: number) {
@@ -137,11 +148,17 @@ export default function ProjectPagePanel(){
 
     async function deleteProject(pid: number) {
         try {
+            // console.log(`pid: ${pid}, currentProjectId: ${currentProjectId}`);
             const response = await api.delete(`projects/${pid}`);
             const data = response.data;
-            setProjects(projects => projects.filter(project => project.id !== data.project.id));            
+            setProjects(projects => projects.filter(project => project.id !== data.project.id));
+
         } catch (error) {
             console.error(error);
+        } finally {
+            if (currentProjectIdRef.current === pid) {
+                setCurrentProjectId(-1);
+            }
         }
     }
 
@@ -156,8 +173,8 @@ export default function ProjectPagePanel(){
     }
 
     return (
-        <div className="flex px-10 gap-10 mt-20">
-            <Panel className="grow-1" type="project" items={projects} title="PROJECTS" inputPlaceholder="Enter your project name" submitHandler={createProject} />
+        <div className="flex px-10 gap-10 mt-20 mx-auto flex-wrap w-full max-w-[2100px]">
+            <Panel className="grow-1" type="project" items={projects} title="PROJECTS" inputPlaceholder="Enter your project name" submitHandler={createProject} currentProjectId={currentProjectId} />
             <Panel className="grow-2" type="task" items={tasks} title="TASKS" inputPlaceholder="Enter your task name" submitHandler={createTask}/>
         </div>
     );
