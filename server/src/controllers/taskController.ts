@@ -1,37 +1,38 @@
 import { Response, Request, NextFunction } from 'express';
 import prisma from '@lib/prisma';
+import * as taskService from '@services/taskServices';
 
-export const verifyAccessability = async (req: Request, res: Response, next: NextFunction) => {
-    // verify if the user has access to the project
-    const projectId = parseInt(req.params.projectId) || req.projectId;
-    const userId = req.userId; 
+// export const verifyAccessability = async (req: Request, res: Response, next: NextFunction) => {
+//     // verify if the user has access to the project
+//     const projectId = parseInt(req.params.projectId) || req.projectId;
+//     const userId = req.userId; 
 
-    if (!userId || !projectId) {
-        throw new Error("Missing userId or projectId");
-    }
+//     if (!userId || !projectId) {
+//         throw new Error("Missing userId or projectId");
+//     }
 
-    try {
-        const project = await prisma.project.findUnique({
-            where: {
-                id: projectId,
-            },
-        });
+//     try {
+//         const project = await prisma.project.findUnique({
+//             where: {
+//                 id: projectId,
+//             },
+//         });
         
-        if (!project) {
-            res.status(400).send({ message: "Can't find the project" });
-            return;
-        }
+//         if (!project) {
+//             res.status(400).send({ message: "Can't find the project" });
+//             return;
+//         }
 
-        if (project.userId !== req.userId) {
-            res.status(401).send({ message: "Unauthenticated" });
-            return;
-        } 
-        next();
-    } catch (e) {
-        console.log(e);
-        next(e);
-    }
-}
+//         if (project.userId !== req.userId) {
+//             res.status(401).send({ message: "Unauthenticated" });
+//             return;
+//         } 
+//         next();
+//     } catch (e) {
+//         console.log(e);
+//         next(e);
+//     }
+// }
 
 export const createTask = async (req: Request, res: Response) => {
     const description = req.body.description as string;
@@ -43,13 +44,7 @@ export const createTask = async (req: Request, res: Response) => {
     }
 
     try {
-        const newTask = await prisma.task.create({
-            data: {
-                description: description,
-                projectId: projectId, 
-            }
-        });
-
+        const newTask = await taskService.createTask(projectId, description);
         res.status(200).send({ task: newTask });
 
     } catch (e) {
@@ -67,14 +62,7 @@ export const indexTasks = async (req: Request, res: Response) => {
     }
 
     try {
-        const project = await prisma.project.findUnique({
-            where: {
-                id: projectId,
-            },
-            include: {
-                tasks: true,
-            },
-        });
+        const project = await taskService.indexTasks(projectId);
         if (!project) {
             res.status(400).send({ message: "Couldn't find the project" });
             return;
@@ -117,15 +105,7 @@ export const updateTask = async (req: Request, res: Response) => {
     }
 
     try {
-        const task = await prisma.task.update({
-            where: {
-                id: taskId,
-            },
-            data: {
-                description: newDescription,
-                completed: newCompletedStatus,
-            }
-        });
+        const task = await taskService.updateTask(taskId, newDescription, newCompletedStatus);
         res.status(200).send({ task: task });
     } catch (e) {
         console.log(e);
@@ -141,11 +121,7 @@ export const deleteTask = async (req: Request, res: Response) => {
     }
 
     try {  
-        const task = await prisma.task.delete({
-            where: {
-                id: taskId,
-            },
-        });
+        const task = await taskService.deleteTask(taskId);
         res.status(200).send({ task: task });
 
     } catch (e) {

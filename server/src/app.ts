@@ -2,7 +2,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import router from '@routes/routes';
 import cors from 'cors';
-import errorHandler from './middleware/errors';
+import errorHandler from '@middlewares/errors';
 import cookieParser from 'cookie-parser'; 
 
 const corsOptions = {
@@ -15,7 +15,6 @@ const app = express();
 app.use(cors(corsOptions));
 app.use(cookieParser(process.env.JWT_SECRET));
 app.use(express.json()); //built-in body parser
-
 
 app.use('/api', router);
 app.use(errorHandler);

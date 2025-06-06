@@ -8,6 +8,8 @@ declare global {
             username?: string;
             token?: Token;
             projectId?: number;
+            email?: string;
+            password?: string;
         }
     }
 }

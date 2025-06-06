@@ -1,43 +1,41 @@
 import { Response, Request, NextFunction } from "express";
 import prisma from '@lib/prisma';
+import * as projectService from '@services/projectServices';
 
-export const findUserRecordWithProjects = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const user = await prisma.user.findUnique({
-            where: {
-                id: req.userId,
-            }, 
-            include: {
-                projects: true,
-            },
-        });
+// export const findUserRecordWithProjects = async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//         const user = await prisma.user.findUnique({
+//             where: {
+//                 id: req.userId,
+//             }, 
+//             include: {
+//                 projects: true,
+//             },
+//         });
 
-        if (!user) {
-            throw new Error("Couldn't find the user");
-        }
-        // store user somewhere? 
-        next();
-    } catch (e) {
-        console.log(e);
-        next(e);
-    }
-}
+//         if (!user) {
+//             throw new Error("Couldn't find the user");
+//         }
+//         // store user somewhere? 
+//         next();
+//     } catch (e) {
+//         console.log(e);
+//         next(e);
+//     }
+// }
 
 export const indexProjects = async (req: Request, res: Response) => {
     // assumes req.userId to be set(runs requireAutnetication before this)
 
+    if (!req.userId) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+    }
     try {
-        const user = await prisma.user.findUnique({
-            where: {
-                id: req.userId,
-            },
-            include: {
-                projects: true, // By default, returned records do not include relations, only scalar fields
-            },
-        });
+        const user = await projectService.findUserRecordWithProjects(req.userId);
 
         if (!user) {
-            res.status(500).send({ message: "Couldn't find the user" });
+            res.status(401).send({ message: "Couldn't find the user" });
             return;
         }
         
@@ -59,14 +57,12 @@ export const createProject = async (req: Request, res: Response) => {
     }
 
     try {
-        const newProject = await prisma.project.create({
-            data: {
-                title: title,
-                userId: userId,
-            },
-        });
+        const newProject = await projectService.createProject(title, userId);
+        if (!newProject) {
+            res.status(500).send({ message: "Something went wrong while creating the project" });
+            return;
+        }
         res.status(200).send({ project: newProject });
-
     } catch (e) {
         console.log(e);
         res.status(500).send({ message: "Something went wrong while creating the project" });
@@ -90,16 +86,12 @@ export const updateProject = async (req: Request, res: Response) => {
     }
 
     try {
-        const project = await prisma.project.update({
-            where: {
-                id: projectId,
-                userId: userId,
-            }, 
-            data: {
-                title: newTitle,
-            },
-        });
-        res.status(200).send({ project: project });
+        const updatedProject = await projectService.updateProject(newTitle, projectId, userId);
+        if (!updatedProject) {
+            res.status(500).send({ message: "Something went wrong while creating the project" });
+            return;
+        }
+        res.status(200).send({ project: updatedProject });
     } catch (e) {
         console.log(e);
         res.status(500).send({ message: "Something went wrong while updating the project" });
@@ -122,12 +114,7 @@ export const deleteProject = async (req: Request, res: Response) => {
     }
 
     try {
-        const project = await prisma.project.delete({
-            where: {
-                id: projectId,
-                userId: userId,
-            },
-        });
+        const project = await projectService.deleteProject(projectId, userId);
         res.status(200).send({ project: project });
 
     } catch (e) {
