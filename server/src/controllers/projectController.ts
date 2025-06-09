@@ -2,28 +2,6 @@ import { Response, Request, NextFunction } from "express";
 import prisma from '@lib/prisma';
 import * as projectService from '@services/projectServices';
 
-// export const findUserRecordWithProjects = async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//         const user = await prisma.user.findUnique({
-//             where: {
-//                 id: req.userId,
-//             }, 
-//             include: {
-//                 projects: true,
-//             },
-//         });
-
-//         if (!user) {
-//             throw new Error("Couldn't find the user");
-//         }
-//         // store user somewhere? 
-//         next();
-//     } catch (e) {
-//         console.log(e);
-//         next(e);
-//     }
-// }
-
 export const indexProjects = async (req: Request, res: Response) => {
     // assumes req.userId to be set(runs requireAutnetication before this)
 
