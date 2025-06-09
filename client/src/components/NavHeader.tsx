@@ -10,7 +10,7 @@ type NavLink = {
 };
 
 const buttonClassNames = {
-    filled: 'text-white bg-black',
+    filled: 'text-white bg-black hover:text-black',
     empty: 'text-black bg-white',
 };
 
@@ -20,7 +20,7 @@ interface NavLinkProps {
 
 //md -> min-width
 export function NavItem({ navLink }: { navLink: NavLink }) {
-    const classes = "px-2 py-2 md:px-7 md:py-2 border-1 border-solid border-black rounded-4xl uppercase " + navLink.classNames
+    const classes = "px-4 py-1 md:px-7 md:py-2 border-1 border-solid border-black rounded-4xl uppercase hover:bg-lime-200 " + navLink.classNames
 
     if (navLink.path) {
         return (

@@ -117,7 +117,7 @@ export default function RegisterForm() {
     }
 
     return (
-        <form onSubmit={registerUser} className="flex flex-col w-xs mx-auto mt-60">
+        <form onSubmit={registerUser} className="flex flex-col w-xs mx-auto mt-30 md:mt-40">
             <h2 className="text-3xl mt-0 mb-5">Create your account</h2>
             <div className="flex flex-col gap-4 w-full">
                 { submitError && <FormErrorMessage message={submitErrorMessage} /> }
