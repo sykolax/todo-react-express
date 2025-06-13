@@ -12,7 +12,7 @@ export const createTask = async (req: Request, res: Response) => {
     }
 
     try {
-        const newTask = await taskService.createTask(projectId, description);
+        const newTask = await taskService.createTask({ projectId: projectId, newDescription: description }, { prisma });
         res.status(200).send({ task: newTask });
 
     } catch (e) {
@@ -30,7 +30,7 @@ export const indexTasks = async (req: Request, res: Response) => {
     }
 
     try {
-        const project = await taskService.indexTasks(projectId);
+        const project = await taskService.indexTasks({ projectId: projectId }, { prisma });
         if (!project) {
             res.status(400).send({ message: "Couldn't find the project" });
             return;
@@ -46,15 +46,8 @@ export const getProjectId = async (req: Request, res: Response, next: NextFuncti
     const taskId = parseInt(req.params.taskId);
 
     try {
-        const task = await prisma.task.findUnique({
-            where: {
-                id: taskId,
-            }
-        });
-        if (!task) {
-            throw new Error("Task not found");
-        }
-        req.projectId = task.projectId;
+        const projectId = await taskService.getProjectId({ taskId: taskId }, { prisma });
+        req.projectId = projectId;
         next();
     } catch (e) {
         console.log(e);
@@ -73,7 +66,7 @@ export const updateTask = async (req: Request, res: Response) => {
     }
 
     try {
-        const task = await taskService.updateTask(taskId, newDescription, newCompletedStatus);
+        const task = await taskService.updateTask({ taskId: taskId, newDescription: newDescription, newCompletedStatus: newCompletedStatus }, { prisma });
         res.status(200).send({ task: task });
     } catch (e) {
         console.log(e);
@@ -89,7 +82,7 @@ export const deleteTask = async (req: Request, res: Response) => {
     }
 
     try {  
-        const task = await taskService.deleteTask(taskId);
+        const task = await taskService.deleteTask({ taskId: taskId }, { prisma });
         res.status(200).send({ task: task });
 
     } catch (e) {

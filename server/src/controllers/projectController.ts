@@ -10,7 +10,7 @@ export const indexProjects = async (req: Request, res: Response) => {
         return;
     }
     try {
-        const user = await projectService.findUserRecordWithProjects(req.userId);
+        const user = await projectService.findUserRecordWithProjects({ userId: req.userId }, { prisma });
 
         if (!user) {
             res.status(401).send({ message: "Couldn't find the user" });
@@ -35,7 +35,7 @@ export const createProject = async (req: Request, res: Response) => {
     }
 
     try {
-        const newProject = await projectService.createProject(title, userId);
+        const newProject = await projectService.createProject({ title: title, userId: userId }, { prisma });
         if (!newProject) {
             res.status(500).send({ message: "Something went wrong while creating the project" });
             return;
@@ -64,7 +64,7 @@ export const updateProject = async (req: Request, res: Response) => {
     }
 
     try {
-        const updatedProject = await projectService.updateProject(newTitle, projectId, userId);
+        const updatedProject = await projectService.updateProject({ newTitle: newTitle, projectId: projectId, userId: userId }, { prisma });
         if (!updatedProject) {
             res.status(500).send({ message: "Something went wrong while creating the project" });
             return;
@@ -92,7 +92,7 @@ export const deleteProject = async (req: Request, res: Response) => {
     }
 
     try {
-        const project = await projectService.deleteProject(projectId, userId);
+        const project = await projectService.deleteProject({ projectId: projectId, userId: userId }, { prisma });
         res.status(200).send({ project: project });
 
     } catch (e) {

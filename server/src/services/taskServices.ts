@@ -1,11 +1,12 @@
 import prisma from '@lib/prisma';
+import type { Context } from '@context/context';
 
-export const createTask = async (projectId: number, newDescription: string) => {
+export const createTask = async (task: CreateTask, ctx: Context) => {
     try {
-        const newTask = await prisma.task.create({
+        const newTask = await ctx.prisma.task.create({
             data: {
-                description: newDescription, 
-                projectId: projectId,
+                description: task.newDescription, 
+                projectId: task.projectId,
             }
         });
         return newTask;
@@ -14,11 +15,11 @@ export const createTask = async (projectId: number, newDescription: string) => {
     }
 }
 
-export const indexTasks = async (projectId: number) => {
+export const indexTasks = async (task: IndexTask, ctx: Context) => {
     try {
-        const project = await prisma.project.findUnique({
+        const project = await ctx.prisma.project.findUnique({
             where: {
-                id: projectId, 
+                id: task.projectId, 
             }, 
             include: {
                 tasks: true,
@@ -30,31 +31,44 @@ export const indexTasks = async (projectId: number) => {
     }
 }
 
-export const updateTask = async (taskId: number, newDescription: string, newCompletedStatus: boolean) => {
+export const updateTask = async (task: UpdateTask, ctx: Context) => {
     try {
-        const task = await prisma.task.update({
+        const updatedTask = await ctx.prisma.task.update({
             where: {
-                id: taskId,
+                id: task.taskId,
             }, 
             data: {
-                description: newDescription,
-                completed: newCompletedStatus,
+                description: task.newDescription,
+                completed: task.newCompletedStatus,
             }
         });
-        return task;
+        return updatedTask;
     } catch (e) {
         console.log(e);
     }
 }
 
-export const deleteTask = async (taskId: number) => {
+export const deleteTask = async (task: TaskWithId, ctx: Context) => {
     try {
-        const task = await prisma.task.delete({
+        const deletedTask = await ctx.prisma.task.delete({
             where: {
-                id: taskId,
+                id: task.taskId,
             }
         });
-        return task;
+        return deletedTask;
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+export const getProjectId = async (task: TaskWithId, ctx: Context) => {
+    try {
+        const foundTask = await prisma.task.findUnique({
+            where: {
+                id: task.taskId,
+            }
+        });
+        return foundTask?.projectId;
     } catch (e) {
         console.log(e);
     }

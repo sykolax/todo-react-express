@@ -35,12 +35,14 @@ export const requireAuthentication = async (req: Request, res: Response, next: N
 export const validateUserCredentials = async (req: Request, res: Response, next: NextFunction) => {
     const email = req.body.email;
     const password = req.body.password;
-    console.log("validating...");
 
     if (!email || !password) {
         res.status(400).json({ message: "Missing credentials" });
         return;
     }
+
+    // TODO: validate user input more
+    
     next();
 }
 

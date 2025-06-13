@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import ms, { StringValue } from 'ms';
 import * as userService from '@services/userServices';
+import prisma from '@lib/prisma';
 
 dotenv.config();
 
@@ -14,7 +15,7 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
     }
 
     try {
-        const user = await userService.createUser(name, email, password);
+        const user = await userService.createUser({ email: email, password: password, name: name }, { prisma });
 
         if (!user) {
             res.status(500).json({ message: "Something went wrong." });
@@ -39,7 +40,7 @@ export const loginUser = async (req: Request, res: Response) => {
             return;
         }
         req.userId = user.id; 
-        const token = await userService.generateToken(req.userId);
+        const token = await userService.generateToken({ id: req.userId }, { prisma });
         if (!token) {
             res.status(500).json({ message: "Something went wrong while generating token" });
             return;
@@ -72,7 +73,7 @@ export const verifyStatus = async (req: Request, res: Response) => {
     }
 
     try {
-        const user = await userService.findUserById(req.userId);
+        const user = await userService.findUserById({ id: req.userId }, { prisma });
         if (!user) {
             res.clearCookie('token');
             res.status(401).json({ message: "Couldn't find the user" });
