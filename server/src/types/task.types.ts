@@ -1,18 +1,18 @@
-interface CreateTask {
+export interface CreateTask {
     projectId: number;
     newDescription: string;
 };
 
-interface IndexTask {
+export interface IndexTask {
     projectId: number;
 };
 
-interface UpdateTask {
+export interface UpdateTask {
     taskId: number;
     newDescription: string; 
     newCompletedStatus: boolean;
 };
 
-interface TaskWithId {
+export interface TaskWithId {
     taskId: number;
 }

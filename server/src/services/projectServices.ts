@@ -1,5 +1,6 @@
 import prisma from '@lib/prisma';
 import { Context } from '@context/context';
+import type { IndexProject, CreateProject, UpdateProject, DeleteProject } from '@type/project.types';
 
 export const findUserRecordWithProjects = async (project: IndexProject, ctx: Context) => {
     const user = await ctx.prisma.user.findUnique({

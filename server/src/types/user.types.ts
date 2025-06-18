@@ -1,19 +1,19 @@
-interface CreateUser {
+export interface CreateUser {
     email: string;
     password: string;
     name: string;
 };
 
-interface FindUserByCredentials {
+export interface FindUserByCredentials {
     email: string;
     password: string;
 };
 
-interface FindUserById {
+export interface FindUserById {
     id: number;
 };
 
-interface UpdateUser {
+export interface UpdateUser {
     id: number;
     newPassword: string;
 };

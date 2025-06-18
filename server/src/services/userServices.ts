@@ -1,14 +1,13 @@
-import prisma from '@lib/prisma';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import ms, { StringValue } from 'ms';
 import type { Context } from '@context/context';
+import type { FindUserByCredentials, CreateUser, FindUserById, UpdateUser } from '@type/user.types'
 
 dotenv.config();
 
 export const findUserByCredentials = async (user: FindUserByCredentials, ctx: Context) => {
-
     const foundUser = await ctx.prisma.user.findUnique({
         where: {
             email: user.email,
@@ -27,7 +26,6 @@ export const findUserByCredentials = async (user: FindUserByCredentials, ctx: Co
 }
 
 export const createUser = async (user: CreateUser, ctx: Context) => {
-
     const newUser = await ctx.prisma.user.create({
         data: {
             email: user.email,

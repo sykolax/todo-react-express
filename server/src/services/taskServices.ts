@@ -1,5 +1,6 @@
 import prisma from '@lib/prisma';
 import type { Context } from '@context/context';
+import type { CreateTask, IndexTask, UpdateTask, TaskWithId } from '@type/task.types'
 
 export const createTask = async (task: CreateTask, ctx: Context) => {
     try {

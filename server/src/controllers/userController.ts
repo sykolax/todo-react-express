@@ -15,7 +15,9 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
     }
 
     try {
+        console.log(prisma);
         const user = await userService.createUser({ email: email, password: password, name: name }, { prisma });
+        
 
         if (!user) {
             res.status(500).json({ message: "Something went wrong." });
@@ -34,7 +36,7 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
 export const loginUser = async (req: Request, res: Response) => {
 
     try {
-        const user = await userService.findUserByCredentials(req.body.email, req.body.password);
+        const user = await userService.findUserByCredentials({email: req.body.email, password:req.body.password}, { prisma });
         if (!user) {
             res.status(401).json({ message: "Unauthorized" });
             return;

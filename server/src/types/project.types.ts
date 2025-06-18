@@ -1,19 +1,19 @@
-interface CreateProject {
+export interface CreateProject {
     title: string;
     userId: number;
 };
 
-interface IndexProject {
+export interface IndexProject {
     userId: number;
 };
 
-interface UpdateProject {
+export interface UpdateProject {
     newTitle: string;
     projectId: number;
     userId: number;
 };
 
-interface DeleteProject {
+export interface DeleteProject {
     projectId: number;
     userId: number;
 }
