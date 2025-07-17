@@ -13,11 +13,11 @@ export default Prisma.defineExtension({
     query: {
         user: {
             async create({ args, query }) {
-                await hashPassword(args);
+                await hashPassword(args as { data: any });
                 return query(args);
             },
             async update({ args, query }) {
-                await hashPassword(args);
+                await hashPassword(args as { data: any });
                 return query(args);
             }
         }

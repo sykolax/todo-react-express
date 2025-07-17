@@ -15,7 +15,6 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
     }
 
     try {
-        console.log(prisma);
         const user = await userService.createUser({ email: email, password: password, name: name }, { prisma });
         
 
@@ -42,7 +41,7 @@ export const loginUser = async (req: Request, res: Response) => {
             return;
         }
         req.userId = user.id; 
-        const token = await userService.generateToken({ id: req.userId }, { prisma });
+        const token = await userService.generateToken({ id: req.userId! }, { prisma });
         if (!token) {
             res.status(500).json({ message: "Something went wrong while generating token" });
             return;
